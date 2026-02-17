@@ -10,7 +10,8 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todo_app.db")
 
 # Create the engine
-engine = create_engine(DATABASE_URL, echo=True)
+# For PostgreSQL with psycopg3, use psycopg2 dialect
+engine = create_engine(DATABASE_URL, echo=True, future=True)
 
 def get_db() -> Generator[Session, None, None]:
     """
