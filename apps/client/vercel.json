@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "https://usmannick-phase-2-update-backend.hf.space",
+      "NEXT_PUBLIC_BETTER_AUTH_URL": "https://client-ochre-mu-40.vercel.app"
+    }
+  }
+}
