@@ -4,10 +4,10 @@ import { useEffect } from 'react';
 import { useSession } from '../lib/auth-client';
 
 export default function HomePage() {
-  const { data: session, isLoading } = useSession();
+  const { data: session, isPending } = useSession();
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isPending) {
       if (session) {
         // User is authenticated, redirect to tasks page
         window.location.href = '/tasks';
@@ -16,7 +16,7 @@ export default function HomePage() {
         window.location.href = '/login';
       }
     }
-  }, [session, isLoading]);
+  }, [session, isPending]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

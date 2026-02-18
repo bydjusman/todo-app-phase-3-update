@@ -1,5 +1,5 @@
 import { betterAuth } from 'better-auth';
-import { betterAuthNextjsServerHandler } from 'better-auth/next-js/server-handler';
+import { toNextJsHandler } from 'better-auth/next-js';
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET || 'super-secret-jwt-key-for-local-development-min-32-chars',
@@ -11,8 +11,8 @@ export const auth = betterAuth({
   },
   database: {
     provider: 'sqlite',
-    url: process.env.DATABASE_URL || 'sqlite://./todo_app.db',
+    url: process.env.DATABASE_URL || 'sqlite://./todo-app.db',
   },
 });
 
-export const handler = betterAuthNextjsServerHandler(auth);
+export const handler = toNextJsHandler(auth);

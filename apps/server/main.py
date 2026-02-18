@@ -7,10 +7,10 @@ import traceback
 
 app = FastAPI(title="Todo API", version="1.0.0")
 
-# Add CORS middleware
+# Add CORS middleware - allow all origins for Hugging Face deployment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,4 +37,16 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    import os
+    from dotenv import load_dotenv
+    
+    # Load environment variables
+    load_dotenv()
+    
+    # Get port from environment or default to 8000
+    port = int(os.getenv("PORT", 8000))
+    
+    print(f"===== Application Startup at {__import__('datetime').datetime.now()} =====")
+    print(f"Starting server on http://0.0.0.0:{port}")
+    
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
