@@ -6,6 +6,7 @@ from sqlmodel import SQLModel
 from database.session import engine
 from models.task import Task
 from models.user import User
+from models.models import Conversation, Message
 
 
 def init_db():

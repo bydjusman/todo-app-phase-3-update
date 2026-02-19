@@ -8,10 +8,13 @@ for the Todo App backend. It integrates with Better Auth JWT tokens.
 import os
 from typing import Dict, Optional
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 
+# Load environment variables from .env file
+load_dotenv()
 
 # Environment variable for JWT secret
 BETTER_AUTH_SECRET = os.getenv("BETTER_AUTH_SECRET")

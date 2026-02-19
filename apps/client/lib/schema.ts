@@ -43,3 +43,22 @@ export const verification = sqliteTable('verification', {
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
 });
+
+// Chat-related schemas
+export const conversations = sqliteTable('conversations', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull().references(() => user.id),
+  title: text('title'), // Optional title for the conversation
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+});
+
+export const messages = sqliteTable('messages', {
+  id: text('id').primaryKey(),
+  conversationId: text('conversationId').notNull().references(() => conversations.id, { onDelete: 'cascade' }),
+  userId: text('userId').notNull().references(() => user.id),
+  role: text('role', { enum: ['user', 'assistant'] }).notNull(), // Either 'user' or 'assistant'
+  content: text('content').notNull(),
+  toolCalls: text('toolCalls', { mode: 'json' }), // Store tool calls as JSON
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+});
