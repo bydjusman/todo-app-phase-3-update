@@ -1,134 +1,229 @@
-# Implementation Tasks: AI Chatbot with MCP and OpenAI Agents SDK
+---
+description: "Task list for OpenAI Agents SDK integration with MCP tools"
+---
 
-## Feature Overview
-This document outlines the implementation tasks for an AI chatbot feature that enables users to interact with their todo tasks through a natural language interface, using MCP (Model Context Protocol) and OpenAI Agents SDK.
+# Tasks: OpenAI Agents SDK Integration
 
-## Dependencies
-- Existing todo management system with task CRUD operations
-- Authentication system with JWT token support
-- Database system with PostgreSQL support
-- OpenAI API access for language processing
+**Input**: Design requirements for OpenAI Agents SDK integration with MCP tools
+**Prerequisites**: spec.md (required for user stories), existing MCP infrastructure
+
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- Include exact file paths in descriptions
+
+## Path Conventions
+
+- **Backend**: `apps/server/src/`, `apps/server/mcp/`
+- **MCP tools**: `apps/server/mcp/tools/`, `apps/server/mcp/agents.py`
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Project initialization and basic OpenAI Agents structure
+
+- [ ] T001 Install OpenAI Python SDK and related dependencies in apps/server/requirements.txt
+- [ ] T002 Initialize OpenAI Agents SDK structure in apps/server/mcp/agents.py
+- [ ] T003 [P] Set up main chat agent configuration with OpenAI client
+- [ ] T004 [P] Create environment variable configuration for OpenAI API in .env
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+- [ ] T005 Create task operation sub-agent that interfaces with MCP tools in apps/server/mcp/agents.py
+- [ ] T006 Update MCP server to provide OpenAI-compatible tool definitions in apps/server/mcp/server.py
+- [ ] T007 [P] Implement user_id passing from JWT to MCP tools in apps/server/mcp/agents.py
+- [ ] T008 [P] Create tool validation layer to ensure only authorized operations in apps/server/mcp/server.py
+- [ ] T009 Ensure all database operations are wrapped in MCP tools (no direct DB access) in apps/server/mcp/server.py
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 3: User Story 1 - Natural Language Task Creation (Priority: P1) 🎯 MVP
+
+**Goal**: Enable users to create tasks using natural language commands through OpenAI Agents
+
+**Independent Test**: User can create a task by typing "Add a task to buy groceries" and see the task created in their list via OpenAI Agents integration.
+
+### Implementation for User Story 1
+
+- [ ] T010 [US1] Configure OpenAI assistant with task creation tool in apps/server/mcp/agents.py
+- [ ] T011 [US1] Implement natural language parsing for task creation intents in apps/server/mcp/agents.py
+- [ ] T012 [US1] Test task creation through OpenAI Agents interface using natural language
+- [ ] T013 [US1] Validate user authentication during task creation via agents
+- [ ] T014 [US1] Verify task is stored in user-specific scope via agent flow
+
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+---
+
+## Phase 4: User Story 2 - Natural Language Task Retrieval (Priority: P1)
+
+**Goal**: Enable users to retrieve their tasks using natural language queries through OpenAI Agents
+
+**Independent Test**: User can ask "What tasks do I have today?" and see a list of today's tasks via OpenAI Agents integration.
+
+### Implementation for User Story 2
+
+- [ ] T015 [US2] Configure OpenAI assistant with task retrieval tools in apps/server/mcp/agents.py
+- [ ] T016 [US2] Implement natural language parsing for task retrieval intents in apps/server/mcp/agents.py
+- [ ] T017 [US2] Test task listing through OpenAI Agents interface using natural language
+- [ ] T018 [US2] Add support for different query filters (completed, pending, all) via agents
+- [ ] T019 [US2] Validate user access to their own tasks only via agent flow
+
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+
+---
+
+## Phase 5: User Story 3 - Natural Language Task Updates (Priority: P2)
+
+**Goal**: Enable users to update their tasks using natural language commands through OpenAI Agents
+
+**Independent Test**: User can say "Mark 'buy milk' as completed" and see the task status updated via OpenAI Agents.
+
+### Implementation for User Story 3
+
+- [ ] T020 [US3] Configure OpenAI assistant with task update tools in apps/server/mcp/agents.py
+- [ ] T021 [US3] Implement natural language parsing for task update intents in apps/server/mcp/agents.py
+- [ ] T022 [US3] Test task completion through OpenAI Agents interface using natural language
+- [ ] T023 [US3] Test task modification through OpenAI Agents interface
+- [ ] T024 [US3] Validate user authentication and authorization for updates via agents
+
+**Checkpoint**: At this point, User Stories 1, 2 AND 3 should all work independently
+
+---
+
+## Phase 6: User Story 4 - Natural Language Task Deletion (Priority: P2)
+
+**Goal**: Enable users to delete tasks using natural language commands through OpenAI Agents
+
+**Independent Test**: User can say "Delete the 'buy milk' task" and the task is removed from their list via OpenAI Agents.
+
+### Implementation for User Story 4
+
+- [ ] T025 [US4] Configure OpenAI assistant with task deletion tools in apps/server/mcp/agents.py
+- [ ] T026 [US4] Implement natural language parsing for task deletion intents in apps/server/mcp/agents.py
+- [ ] T027 [US4] Test task deletion through OpenAI Agents interface using natural language
+- [ ] T028 [US4] Add confirmation flow for sensitive deletion operations via agents
+- [ ] T029 [US4] Validate user authentication and authorization for deletions via agents
+
+**Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 7: Integration & Testing
+
+**Purpose**: Connecting all components and comprehensive testing
+
+- [ ] T030 Implement conversation context management between OpenAI agents in apps/server/mcp/agents.py
+- [ ] T031 [P] Create comprehensive integration tests for all agent operations in apps/server/tests/test_agents.py
+- [ ] T032 Test multi-user isolation in agent interactions
+- [ ] T033 [P] Performance test agent response times with MCP tools
+- [ ] T034 Add monitoring and observability for agent operations in apps/server/mcp/agents.py
+- [ ] T035 Update chat API route to use OpenAI Agents integration instead of basic intent recognition in apps/server/api/routes/chat.py
+
+**Checkpoint**: All user stories integrated with OpenAI Agents SDK
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
+
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T036 [P] Add comprehensive error handling to OpenAI Agents integration in apps/server/mcp/agents.py
+- [ ] T037 Add logging for agent interactions in apps/server/mcp/agents.py
+- [ ] T038 [P] Implement fallback mechanisms for agent failures in apps/server/mcp/agents.py
+- [ ] T039 Create documentation for OpenAI Agents integration in docs/openai-agents-integration.md
+- [ ] T040 Run end-to-end tests for complete OpenAI Agents functionality
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Integration (Phase 7)**: Depends on all desired user stories being complete
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 4 (P4)**: Can start after Foundational (Phase 2) - May integrate with US1/US2/US3 but should be independently testable
+
+### Within Each User Story
+
+- Core agent integration before API integration
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
 
 ## Implementation Strategy
-The implementation will follow an incremental approach, starting with basic task operations through natural language, then adding more sophisticated features like action confirmation and comprehensive error handling.
 
-## Phases
+### MVP First (User Story 1 Only)
 
-### Phase 1: Setup
-**Goal**: Establish the project structure and foundational components needed for the chatbot feature.
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
 
-- [X] T001 Create project structure with necessary directories per architecture spec
-- [X] T002 Install and configure dependencies: OpenAI SDK, MCP protocol libraries, Python backend frameworks
-- [X] T003 Set up API endpoint `/api/chat` with basic route structure per API spec
-- [X] T004 Configure JWT authentication middleware for chat endpoint
+### Incremental Delivery
 
-### Phase 2: Foundational Components
-**Goal**: Implement foundational components that support all user stories: MCP server, database models, and core services.
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Add User Story 4 → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
-- [X] T005 Define and create database models for ChatSession, ChatMessage, and TaskOperationLog per database spec
-- [X] T006 [P] Implement database migrations for chatbot-specific tables
-- [X] T007 Create MCP server initialization module to register tools
-- [X] T008 [P] Implement parse_intent MCP tool with basic NLP processing
-- [X] T009 [P] Implement create_task MCP tool with user validation
-- [X] T010 [P] Implement get_tasks MCP tool with user validation
-- [X] T011 [P] Implement update_task MCP tool with user validation
-- [X] T012 [P] Implement delete_task MCP tool with user validation and confirmation
-- [X] T013 Set up OpenAI Agents SDK integration with MCP tools
-- [X] T014 Implement basic error handling and validation for all MCP tools
+### Parallel Team Strategy
 
-### Phase 3: [US1] Natural Language Task Creation
-**Goal**: Enable users to create tasks using natural language commands.
+With multiple developers:
 
-**Independent Test**: User can create a task by typing "Add a task to buy groceries" and see the task created in their list.
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
+   - Developer D: User Story 4
+3. Stories complete and integrate independently
 
-- [X] T015 [US1] Implement natural language processing for task creation commands
-- [X] T016 [US1] Integrate create_task MCP tool with chat endpoint
-- [X] T017 [US1] Implement intent recognition for task creation (create_task)
-- [X] T018 [US1] Extract task attributes (title, due date, priority) from natural language
-- [X] T019 [US1] Validate extracted attributes and return helpful feedback for invalid inputs
-- [X] T020 [US1] Return success response with created task information to user
-- [X] T021 [US1] Implement chat session tracking for task creation interactions
+---
 
-### Phase 4: [US2] Natural Language Task Retrieval
-**Goal**: Enable users to retrieve their tasks using natural language queries.
+## Notes
 
-**Independent Test**: User can ask "What tasks do I have today?" and see a list of today's tasks.
-
-- [X] T022 [US2] Implement natural language processing for task retrieval commands
-- [X] T023 [US2] Integrate get_tasks MCP tool with chat endpoint
-- [X] T024 [US2] Implement intent recognition for task retrieval (get_tasks)
-- [X] T025 [US2] Extract date filters and status filters from query
-- [X] T026 [US2] Format and present retrieved tasks in readable format to user
-- [X] T027 [US2] Handle empty query results with appropriate user feedback
-- [X] T028 [US2] Implement pagination for queries returning many tasks
-
-### Phase 5: [US3] Natural Language Task Updates
-**Goal**: Enable users to update their tasks using natural language commands.
-
-**Independent Test**: User can say "Mark 'buy milk' as completed" and see the task status updated.
-
-- [X] T029 [US3] Implement natural language processing for task update commands
-- [X] T030 [US3] Integrate update_task MCP tool with chat endpoint
-- [X] T031 [US3] Implement intent recognition for task updates (update_task)
-- [X] T032 [US3] Extract task identifiers and update attributes from command
-- [X] T033 [US3] Validate that user can only update their own tasks
-- [X] T034 [US3] Confirm updates and return success messages to user
-- [X] T035 [US3] Support various update types (status, title, due date, priority)
-
-### Phase 6: [US4] Natural Language Task Deletion
-**Goal**: Enable users to delete tasks using natural language commands.
-
-**Independent Test**: User can say "Delete the 'buy milk' task" and the task is removed from their list.
-
-- [X] T036 [US4] Implement natural language processing for task deletion commands
-- [X] T037 [US4] Integrate delete_task MCP tool with chat endpoint
-- [X] T038 [US4] Implement intent recognition for task deletion (delete_task)
-- [X] T039 [US4] Extract task identifiers from deletion command
-- [X] T040 [US4] Implement action confirmation for deletion operations
-- [X] T041 [US4] Validate that user can only delete their own tasks
-- [X] T042 [US4] Return confirmation message after successful deletion
-
-### Phase 7: [US5] Enhanced Interaction Features
-**Goal**: Implement advanced interaction features including error handling, stateless requests, and user experience improvements.
-
-**Independent Test**: User can interact with stateless requests and receive helpful error messages when commands are invalid.
-
-- [X] T043 [US5] Implement comprehensive error handling for unclear commands
-- [X] T044 [US5] Design and implement helpful error messages for various failure scenarios
-- [X] T045 [US5] Ensure chat endpoint works with stateless requests per requirements
-- [X] T046 [US5] Implement rate limiting for chat endpoint per API spec
-- [X] T047 [US5] Add input sanitization to prevent injection attacks
-- [X] T048 [US5] Implement logging for audit and debugging purposes
-- [X] T049 [US5] Create client-side chat interface component for natural language input
-
-### Phase 8: Polish & Cross-Cutting Concerns
-**Goal**: Complete the implementation with performance tuning, testing, and documentation.
-
-- [X] T050 Implement performance optimizations for response times under 2 seconds
-- [X] T051 Write unit tests for all MCP tools and chat endpoint functionality
-- [X] T052 Write integration tests for complete chatbot workflows
-- [X] T053 Conduct security review and penetration testing for chat endpoint
-- [X] T054 Optimize database queries with proper indexing as per schema spec
-- [X] T055 Document API endpoints with examples and error codes
-- [X] T056 Create user documentation for natural language commands
-- [X] T057 Perform end-to-end testing with all user stories
-- [X] T058 Conduct load testing to ensure 100 concurrent connections support
-- [X] T059 Deploy to staging environment for final validation
-
-## User Story Dependencies
-- User Story 1 (Task Creation) can be implemented independently
-- User Story 2 (Task Retrieval) can be implemented independently
-- User Story 3 (Task Updates) can be implemented independently
-- User Story 4 (Task Deletion) can be implemented independently
-- User Story 5 (Enhanced Features) depends on completion of all previous stories
-
-## Parallel Execution Opportunities
-- MCP tools can be developed in parallel (T008-T012)
-- User stories 1-4 can be developed in parallel after foundational components are complete
-- Database work can be done in parallel with MCP tool development (T005-T006 with T007-T012)
-
-## MVP Scope
-The minimum viable product includes:
-- T001-T014 (Setup and foundational components)
-- T015-T021 (Task creation via natural language)
-- T050, T051, T057, T059 (Performance, testing, and deployment)
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- Critical: Ensure no direct database access - all operations through MCP tools only

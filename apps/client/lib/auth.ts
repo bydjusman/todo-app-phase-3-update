@@ -16,3 +16,31 @@ export const auth = betterAuth({
 });
 
 export const handler = toNextJsHandler(auth);
+
+// Helper function to get session from headers (for Pages API)
+export async function getSession(headers: Headers | Record<string, string | undefined>) {
+  let cookie: string | undefined;
+  
+  if (headers instanceof Headers) {
+    cookie = headers.get('cookie') || undefined;
+  } else {
+    cookie = headers.cookie || headers.Cookie || undefined;
+  }
+  
+  if (!cookie) return null;
+  
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BETTER_AUTH_URL || 'http://localhost:3000'}/api/auth/get-session`, {
+      headers: {
+        cookie,
+      },
+    });
+    
+    if (!response.ok) return null;
+    
+    const data = await response.json();
+    return data.session || null;
+  } catch {
+    return null;
+  }
+}

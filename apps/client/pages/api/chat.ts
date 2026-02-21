@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { auth } from '../../../lib/auth';
-import { db } from '../../../lib/db';
-import { conversations, messages } from '../../../lib/schema';
+import { getSession } from '../../lib/auth';
+import { db } from '../../lib/db';
+import { conversations, messages } from '../../lib/schema';
 import { eq, and } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { runAIAssistant } from '../../../lib/ai';
+import { runAIAssistant } from '../../lib/ai';
 
 // Define types for the request/response
 interface ChatRequestBody {
@@ -28,9 +28,7 @@ export default async function handler(
 
   try {
     // 1. Get JWT → user_id
-    const session = await auth.getSession({
-      headers: req.headers,
-    });
+    const session = await getSession(req.headers as Record<string, string | undefined>);
 
     if (!session) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -115,48 +113,4 @@ export default async function handler(
     console.error('Chat API error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
-}
-
-// Mock implementation of AI assistant - replace with your actual AI provider
-async function runAIAssistant(userMessage: string, conversationId: string, userId: string): Promise<{
-  response: string;
-  tool_calls?: any[];
-}> {
-  // This is a placeholder - in a real implementation, you would:
-  // 1. Get conversation history to provide context to the AI
-  // 2. Call your AI provider's API (OpenAI, Anthropic, etc.)
-  // 3. Potentially execute tool calls if the AI requests them
-  // 4. Return the AI's response and any tool calls it made
-
-  // For example, with OpenAI:
-  /*
-  const { Configuration, OpenAIApi } = require("openai");
-  const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-  const openai = new OpenAIApi(configuration);
-
-  const messages = [
-    { role: "system", content: "You are a helpful assistant." },
-    // Add conversation history here
-    { role: "user", content: userMessage }
-  ];
-
-  const completion = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: messages,
-  });
-
-  const aiResponse = completion.data.choices[0].message;
-  return {
-    response: aiResponse?.content || '',
-    tool_calls: aiResponse?.tool_calls || undefined
-  };
-  */
-
-  // Mock response for demonstration
-  return {
-    response: `This is a mock response to: "${userMessage}". In a real implementation, this would come from an AI assistant.`,
-    tool_calls: [] // Add actual tool calls if any
-  };
 }

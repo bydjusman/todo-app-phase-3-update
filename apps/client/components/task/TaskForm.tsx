@@ -22,7 +22,7 @@ const TaskForm = ({ onTaskCreated, onCancel }: TaskFormProps) => {
     try {
       const newTask = await api.createTask({
         title: title.trim(),
-        description: description.trim() || null,
+        description: description.trim() || undefined,
       });
       onTaskCreated(newTask);
       setTitle('');
