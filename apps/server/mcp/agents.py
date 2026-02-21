@@ -23,6 +23,7 @@ class OpenAIAgentsIntegration:
     def __init__(self):
         self.openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.mcp_server = mcp_server
+        self.last_bulk_delete_request = False
 
     def execute_tool(self, tool_name: str, tool_args: Dict[str, Any], user_id: str) -> Dict[str, Any]:
         """
@@ -151,9 +152,33 @@ class OpenAIAgentsIntegration:
                     "intent": "unknown"
                 }
 
+        # Check if this is a confirmation response for bulk deletion
+        elif any(word in user_input_lower for word in ["yes", "confirm", "ok", "proceed", "continue"]):
+            # Check if previous message was asking for confirmation to delete all tasks
+            # This is a simple check - in a real implementation, you'd want to track conversation state
+            print(f"DEBUG: Detected confirmation response")  # Debug log
+            # Assuming this is a response to delete all tasks confirmation
+            if hasattr(self, 'last_bulk_delete_request') and self.last_bulk_delete_request:
+                print(f"DEBUG: Proceeding with confirmed bulk deletion")  # Debug log
+                result = self.execute_tool("confirm_delete_all_tasks", {}, user_id)
+                # Reset the flag
+                self.last_bulk_delete_request = False
+                return result
+
         # Pattern matching for task deletion
         elif any(word in user_input_lower for word in ["delete", "remove", "cancel"]):
             print(f"DEBUG: Detected deletion intent")  # Debug log
+
+            # Check if this is a request to delete all tasks
+            if any(phrase in user_input_lower for phrase in ["all tasks", "all my tasks", "all of them", "everything", "all task"]):
+                print(f"DEBUG: Detected bulk deletion intent")  # Debug log
+                # Ask for confirmation before proceeding with bulk deletion
+                result = self.execute_tool("delete_all_tasks", {"confirmation": False}, user_id)
+                # Store the flag that a bulk delete was requested
+                if result.get("require_confirmation"):
+                    self.last_bulk_delete_request = True
+                return result
+
             # Extract task by title from user input
             task_title = self._extract_task_title_from_command(user_input_lower)
             print(f"DEBUG: Extracted task title for deletion: '{task_title}'")  # Debug log

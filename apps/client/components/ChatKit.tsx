@@ -25,13 +25,44 @@ const ChatKit: React.FC = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
-  // Load user from localStorage on mount
+  // Load user and messages from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    // Load previous messages from localStorage
+    const storedMessages = localStorage.getItem('chat_messages');
+    if (storedMessages) {
+      try {
+        setMessages(JSON.parse(storedMessages));
+      } catch (e) {
+        console.error('Error parsing stored messages:', e);
+        setMessages([]);
+      }
+    } else {
+      setMessages([]);
+    }
+
+    // Load session ID if available
+    const storedSessionId = localStorage.getItem('chat_session_id');
+    if (storedSessionId) {
+      setSessionId(storedSessionId);
+    }
   }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('chat_messages', JSON.stringify(messages));
+  }, [messages]);
+
+  // Save session ID to localStorage whenever it changes
+  useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem('chat_session_id', sessionId);
+    }
+  }, [sessionId]);
 
   // Scroll to bottom of messages
   useEffect(() => {
@@ -62,23 +93,23 @@ const ChatKit: React.FC = () => {
       // Call the chat API
       const token = localStorage.getItem('auth_token');
       const userId = user?.id;
-      
+
       if (!userId) {
         throw new Error('User not logged in');
       }
-      
+
       if (!token) {
         throw new Error('Authentication token not found');
       }
-      
+
       let apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/${userId}/chat?message=${encodeURIComponent(inputValue)}`;
-      
+
       if (sessionId) {
         apiUrl += `&context=${encodeURIComponent(JSON.stringify({ session_id: sessionId }))}`;
       }
-      
+
       console.log('Calling API:', apiUrl);
-      
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -127,6 +158,14 @@ const ChatKit: React.FC = () => {
     }
   };
 
+  // Function to clear chat history
+  const clearChatHistory = () => {
+    setMessages([]);
+    localStorage.removeItem('chat_messages');
+    localStorage.removeItem('chat_session_id');
+    setSessionId(null);
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center p-4">
@@ -138,9 +177,20 @@ const ChatKit: React.FC = () => {
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto bg-white rounded-lg shadow-md">
       {/* Chat Header */}
-      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg">
-        <h2 className="text-lg font-semibold text-gray-800">AI Chat Assistant</h2>
-        <p className="text-sm text-gray-500">Ask me to create, list, update, or delete tasks</p>
+      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg flex justify-between items-center">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">AI Chat Assistant</h2>
+          <p className="text-sm text-gray-500">Ask me to create, list, update, or delete tasks</p>
+        </div>
+        {messages.length > 0 && (
+          <button
+            onClick={clearChatHistory}
+            className="text-xs text-gray-500 hover:text-red-500 hover:underline"
+            title="Clear chat history"
+          >
+            Clear Chat
+          </button>
+        )}
       </div>
 
       {/* Messages Container */}

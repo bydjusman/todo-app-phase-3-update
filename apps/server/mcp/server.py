@@ -346,6 +346,108 @@ async def update_task(
         raise HTTPException(status_code=500, detail=f"Error updating task: {str(e)}")
 
 
+@mcp_server.register_tool("delete_all_tasks")
+async def delete_all_tasks(
+    user_id: str,
+    confirmation: bool = False,
+    db: Session = None
+) -> Dict[str, Any]:
+    """
+    Handles the process of deleting all tasks for a user.
+
+    Args:
+        user_id: ID of the user deleting tasks
+        confirmation: Flag indicating user confirmation for this sensitive operation
+        db: Database session
+
+    Returns:
+        dict: Deletion confirmation and details or confirmation request
+    """
+    try:
+        # Get all user's tasks
+        tasks_query = select(Task).where(Task.user_id == user_id)
+        all_user_tasks = db.exec(tasks_query).all()
+
+        task_count = len(all_user_tasks)
+
+        # If no tasks exist, return message
+        if task_count == 0:
+            return {
+                "message": "You don't have any tasks to delete.",
+                "tasks_deleted": 0,
+                "task_count": 0
+            }
+
+        # If confirmation is not provided, ask for it
+        if not confirmation:
+            return {
+                "message": f"Please confirm that you want to delete ALL {task_count} of your tasks. This action cannot be undone. Say 'yes' or 'confirm' to proceed.",
+                "require_confirmation": True,
+                "task_count": task_count,
+                "intent": "require_confirmation"
+            }
+
+        # If we reach here, confirmation has been provided
+        # Delete all tasks for the user
+        for task in all_user_tasks:
+            db.delete(task)
+
+        db.commit()
+
+        return {
+            "message": f"Successfully deleted all {task_count} tasks from your list.",
+            "tasks_deleted": task_count,
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting all tasks: {str(e)}")
+
+
+@mcp_server.register_tool("confirm_delete_all_tasks")
+async def confirm_delete_all_tasks(
+    user_id: str,
+    db: Session = None
+) -> Dict[str, Any]:
+    """
+    Confirms and executes deletion of all tasks for a user.
+
+    Args:
+        user_id: ID of the user deleting tasks
+        db: Database session
+
+    Returns:
+        dict: Deletion confirmation and details
+    """
+    try:
+        # Get all user's tasks to return as information
+        tasks_query = select(Task).where(Task.user_id == user_id)
+        all_user_tasks = db.exec(tasks_query).all()
+
+        task_count = len(all_user_tasks)
+
+        # If no tasks exist, return message
+        if task_count == 0:
+            return {
+                "message": "You don't have any tasks to delete.",
+                "tasks_deleted": 0,
+                "task_count": 0
+            }
+
+        # Delete all tasks for the user
+        for task in all_user_tasks:
+            db.delete(task)
+
+        db.commit()
+
+        return {
+            "message": f"Successfully deleted all {task_count} tasks from your list.",
+            "tasks_deleted": task_count,
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting all tasks: {str(e)}")
+
+
 def get_mcp_server():
     """
     Dependency to get the MCP server instance.
