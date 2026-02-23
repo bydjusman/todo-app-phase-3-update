@@ -66,7 +66,8 @@ try {
         "Authorization" = "Bearer $token"
         "Content-Type" = "application/json"
     }
-    $response = Invoke-RestMethod -Uri "$API_URL/api/tasks" -Method Post -Body $taskData -Headers $headers
+    # Use trailing slash to avoid redirect losing Authorization header
+    $response = Invoke-RestMethod -Uri "$API_URL/api/tasks/" -Method Post -Body $taskData -Headers $headers
     Write-Host "[OK] Task created successfully" -ForegroundColor Green
     Write-Host "Task ID: $($response.id)" -ForegroundColor Gray
     $taskId = $response.id
@@ -83,7 +84,8 @@ try {
     $headers = @{
         "Authorization" = "Bearer $token"
     }
-    $response = Invoke-RestMethod -Uri "$API_URL/api/tasks" -Method Get -Headers $headers
+    # Use trailing slash to avoid redirect losing Authorization header
+    $response = Invoke-RestMethod -Uri "$API_URL/api/tasks/" -Method Get -Headers $headers
     Write-Host "[OK] Tasks retrieved successfully" -ForegroundColor Green
     Write-Host "Total tasks: $($response.Count)" -ForegroundColor Gray
 } catch {

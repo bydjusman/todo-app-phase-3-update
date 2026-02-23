@@ -136,7 +136,7 @@ export const api = {
     limit?: number
   }): Promise<Task[]> {
     const query = params ? new URLSearchParams(params as any).toString() : '';
-    const response = await fetchWithAuth(`/api/tasks${query ? `?${query}` : ''}`);
+    const response = await fetchWithAuth(`/api/tasks/${query ? `?${query}` : ''}`);
     return handleResponse<Task[]>(response);
   },
 
@@ -146,7 +146,7 @@ export const api = {
   },
 
   async createTask(data: CreateTaskRequest): Promise<Task> {
-    const response = await fetchWithAuth('/api/tasks', {
+    const response = await fetchWithAuth('/api/tasks/', {
       method: 'POST',
       body: JSON.stringify(data),
     });

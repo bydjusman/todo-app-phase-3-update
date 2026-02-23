@@ -17,14 +17,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the task routes with API prefix
-app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
+# Include the task routes with API prefix (include both with and without trailing slash)
+app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"], include_in_schema=True)
 
 # Include the auth routes with API prefix
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"], include_in_schema=True)
 
 # Include the chat routes - no prefix since it uses user_id in path
-app.include_router(chat.router, prefix="/api", tags=["chat"])
+app.include_router(chat.router, prefix="/api", tags=["chat"], include_in_schema=True)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
