@@ -150,5 +150,81 @@ This application follows a monorepo structure with:
 - JWT-based authentication with proper token validation
 - User data isolation - users can only access their own tasks
 - Input validation and sanitization
-- Secure session management with Better Auth"# todo-phase-2-update" 
-"# todo-app-phase-3-update" 
+- Secure session management with Better Auth"# todo-phase-2-update"
+"# todo-app-phase-3-update"
+
+## Phase 4: Local Kubernetes Deployment
+
+This phase adds Kubernetes deployment capability using Docker, Minikube, and Helm charts.
+
+### Prerequisites
+
+- Docker Desktop
+- Minikube
+- Helm 3
+- kubectl
+
+### Setup Instructions
+
+1. **Start Minikube**:
+   ```bash
+   minikube start
+   ```
+
+2. **Build Docker images**:
+   ```bash
+   # In the project root directory
+   eval $(minikube docker-env)
+
+   # Build client image
+   docker build -t todo-client:latest ./apps/client/
+
+   # Build server image
+   docker build -t todo-server:latest ./apps/server/
+   ```
+
+3. **Install Helm charts**:
+   ```bash
+   # Install server chart first (with required secrets)
+   helm install todo-server ./charts/todo-server \
+     --set env.OPENAI_API_KEY="your_openai_api_key" \
+     --set env.BETTER_AUTH_SECRET="super-secret-jwt-key-for-local-development-min-32-chars"
+
+   # Install client chart
+   helm install todo-client ./charts/todo-client
+   ```
+
+4. **Access the application**:
+   ```bash
+   # Get the Minikube IP
+   minikube ip
+
+   # Port forward to access the frontend service
+   kubectl port-forward svc/todo-client 3000:3000
+   ```
+
+   Then access the frontend at http://localhost:3000
+
+### Helm Chart Values
+
+#### todo-server values:
+- `env.OPENAI_API_KEY`: OpenAI API key (required)
+- `env.BETTER_AUTH_SECRET`: JWT secret (required, min 32 chars)
+- `env.DATABASE_URL`: Database connection string (default: SQLite)
+- `replicaCount`: Number of server pods (default: 1)
+- `service.port`: Service port (default: 8000)
+
+#### todo-client values:
+- `env.NEXT_PUBLIC_API_URL`: Backend API URL (default: http://todo-server:8000)
+- `env.NEXT_PUBLIC_BETTER_AUTH_URL`: Auth URL (default: http://todo-client:3000)
+- `replicaCount`: Number of client pods (default: 1)
+- `service.port`: Service port (default: 3000)
+
+### Uninstall
+
+To remove the deployed applications:
+```bash
+helm uninstall todo-client
+helm uninstall todo-server
+```
+"# todo-app-phase-4" 
